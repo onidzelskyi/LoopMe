@@ -21,13 +21,23 @@ predict_click = function() {
   test_ids <- test$id
   test <- subset(test, select = -c(id))
   
-  # Train and predict
-  #glm_clicks <- glm(label ~ ., data=train, family=binomial)
-  glm_clicks <- glm(label ~ ad_format_id+app_company+app_genre_id+campaign_id+country_id+device_wh+device_ww+line_item_id+line_item_id+orientation+orientation+publisher+campaign_type, data=data_set, family = binomial)
-  glm_clicks_probs <- predict(glm_clicks, test, type="response")
-  
+  # Train and predict all variables
+  #model <- glm(label ~ ., data=train, family=binomial)
+
+  # Or
+  # Select variables
+  model<- glm(label ~ ad_format_id+app_company+app_genre_id+campaign_id+country_id+device_wh+device_ww+line_item_id+line_item_id+orientation+orientation+publisher+campaign_type, data=train, family = binomial)
+  glm_clicks_probs <- predict(model, test, type = "response")
+
+  # Calc accuracy
+  pred <- round(predict(model, type = "response"))
+  tbl <- table(pred, train$label)
+  accuracy <- (tbl[1] + tbl[4]) / dim(train)[1]
+  print(na.omit(accuracy))
+
   # Create submit data
   predicted_click_probs <- data.frame(test_ids, glm_clicks_probs)
   names(predicted_click_probs) <- c("id", "prediction")
-  write.csv(predicted_click_probs, "submit.csv", row.names=FALSE, quote=FALSE)  
+  write.csv(predicted_click_probs, "submit.csv", row.names = FALSE, quote = FALSE)
+  return(train)
 }

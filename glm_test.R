@@ -10,5 +10,8 @@ glm_test = function(data_set) {
     score <- (tbl[1]+tbl[4])/dim(data_set)[1]
     scores <- rbind(scores, cbind(i,score))
   }
-  return(na.omit(data.frame(scores)))
+  scores <- na.omit(data.frame(scores))
+  scores <- scores[order(scores$score, decreasing = TRUE),]
+  names(scores) <- c("variable", "score")
+  return(scores)
 }
